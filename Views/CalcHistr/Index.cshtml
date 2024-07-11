@@ -1,5 +1,113 @@
-﻿@model List<CalcData>
+﻿@model List<MVCAdamBalej.Models.CalcData>
 @{
+    ViewData["Title"] = "Calculator";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <h2 class="text-center mb-5">Calculator</h2>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-6 offset-md-3">
+            <form id="calcForm">
+                <div class="form-group">
+                    <input type="text" class="form-control" id="calcDisplay" readonly>
+                </div>
+                <div class="btn-group d-flex" role="group">
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('7')">7</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('8')">8</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('9')">9</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('/')">/</button>
+                </div>
+                <div class="btn-group d-flex" role="group">
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('4')">4</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('5')">5</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('6')">6</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('*')">*</button>
+                </div>
+                <div class="btn-group d-flex" role="group">
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('1')">1</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('2')">2</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('3')">3</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('-')">-</button>
+                </div>
+                <div class="btn-group d-flex" role="group">
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('0')">0</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('.')">.</button>
+                    <button type="button" class="btn btn-secondary" onclick="clearDisplay()">C</button>
+                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('+')">+</button>
+                </div>
+                <div class="btn-group d-flex" role="group">
+                    <button type="button" class="btn btn-primary equal-btn" onclick="calculate()">=</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col-md-6 offset-md-3">
+            <h3>Calculation History</h3>
+            <table id="historyTable" class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th>Calculation Entry</th>
+                    </tr>
+                </thead>
+              <tbody>
+                    @foreach (var calcData in Model)
+                    {
+            <tr>
+                <td>@calcData.Id</td>
+                <td>@Html.Raw(calcData.CalcEntry)</td>
+            </tr>
+                    }
+</tbody>
+
+
+
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+        <script>
+            $(document).ready(function () {
+                // Initialize calculator display
+                clearDisplay();
+            });
+
+            function appendToDisplay(value) {
+                var currentDisplay = $('#calcDisplay').val();
+                $('#calcDisplay').val(currentDisplay + value);
+            }
+
+            function clearDisplay() {
+                $('#calcDisplay').val('');
+            }
+
+                    function calculate() {
+        var expression = $('#calcDisplay').val();
+
+        $.ajax({
+            type: "POST",
+            url: "/CalcHistr/Calculate",
+            data: {
+                expression: expression
+            },
+            success: function (data) {
+                // Update display and history table
+                clearDisplay();
+                var newRow = '<tr><td>' + data.history.id + '</td><td>' + data.result + '</td></tr>';
+                $('#historyTable').find('tbody').prepend(newRow);
+            },
+            error: function (error) {
+                console.error("Error calculating:", error.responseJSON.error);
+                alert("Error calculating: " + error.responseJSON.error);
+            }
+        });
+    }
+
+        </script>
+}
