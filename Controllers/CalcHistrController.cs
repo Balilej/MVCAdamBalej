@@ -14,7 +14,7 @@ namespace MVCAdamBalej.Controllers
 
         public IActionResult Index()
         {
-            var calcDatas = context.CalcDatas.ToList();
+            var calcDatas = context.CalcDatas.OrderByDescending(c => c.Id).ToList();
             return View(calcDatas);
         }
     }
