@@ -62,9 +62,8 @@ namespace MVCAdamBalej.Controllers
 
         private bool IsValidExpression(string expression)
         {
-            // Simple regex to check if the expression is valid
-            // This regex only allows digits, operators, and spaces
-            var regex = new Regex(@"^[0-9\+\-\*/\s\(\)]+$");
+            // Updated regex to allow decimal points
+            var regex = new Regex(@"^[0-9\+\-\*/\s\(\)\.]+$");
             return regex.IsMatch(expression);
         }
 
