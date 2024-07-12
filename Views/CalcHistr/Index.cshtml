@@ -1,121 +1,113 @@
-﻿@model List<MVCAdamBalej.Models.CalcData>
-@{
-    ViewData["Title"] = "Calculator";
-    Layout = "~/Views/Shared/_Layout.cshtml";
-}
+﻿@model List<CalcData>
 
-<h2 class="text-center mb-5">Calculator</h2>
-
-<div class="container">
-    <div class="row">
-        <div class="col-md-6 offset-md-3">
-            <form id="calcForm">
-                <div class="form-group">
-                    <input type="text" class="form-control" id="calcDisplay" readonly>
-                </div>
-                <div class="btn-group d-flex" role="group">
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('7')">7</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('8')">8</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('9')">9</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('/')">/</button>
-                </div>
-                <div class="btn-group d-flex" role="group">
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('4')">4</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('5')">5</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('6')">6</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('*')">*</button>
-                </div>
-                <div class="btn-group d-flex" role="group">
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('1')">1</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('2')">2</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('3')">3</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('-')">-</button>
-                </div>
-                <div class="btn-group d-flex" role="group">
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('0')">0</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('.')">.</button>
-                    <button type="button" class="btn btn-secondary" onclick="clearDisplay()">C</button>
-                    <button type="button" class="btn btn-secondary" onclick="appendToDisplay('+')">+</button>
-                </div>
-                <div class="btn-group d-flex" role="group">
-                    <button type="button" class="btn btn-primary equal-btn" onclick="calculate()">=</button>
-                </div>
-            </form>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Calculator</title>
+    <link rel="stylesheet" type="text/css" href="~/css/calcSite.css" />
+</head>
+<body>
+    <div class="container">
+        <div class="calculator">
+            <h2 class="text-center mb-5">Calculator</h2>
+            <input type="text" id="calcDisplay" readonly />
+            <div class="calc-buttons">
+                <button class="calc-button" value="1">1</button>
+                <button class="calc-button" value="2">2</button>
+                <button class="calc-button" value="3">3</button>
+                <button class="calc-button" value="+">+</button>
+                <button class="calc-button" value="4">4</button>
+                <button class="calc-button" value="5">5</button>
+                <button class="calc-button" value="6">6</button>
+                <button class="calc-button" value="-">-</button>
+                <button class="calc-button" value="7">7</button>
+                <button class="calc-button" value="8">8</button>
+                <button class="calc-button" value="9">9</button>
+                <button class="calc-button" value="*">*</button>
+                <button class="calc-button" value="0">0</button>
+                <button class="calc-button" value=".">.</button>
+                <button id="clearButton" class="calc-button">C</button>
+                <button class="calc-button" value="/">/</button>
+                <button id="calculateButton" class="calc-button wide">=</button>
+            </div>
         </div>
-    </div>
-
-    <div class="row mt-5">
-        <div class="col-md-6 offset-md-3">
+        <div class="history">
             <h3>Calculation History</h3>
-            <table id="historyTable" class="table table-striped">
+            <table id="historyTable">
                 <thead>
                     <tr>
                         <th>Id</th>
-                        <th>Calculation Entry</th>
+                        <th>Calculation</th>
                     </tr>
                 </thead>
-              <tbody>
-                    @foreach (var calcData in Model)
+                <tbody>
+                    @foreach (var item in Model)
                     {
-            <tr>
-                <td>@calcData.Id</td>
-                <td>@Html.Raw(calcData.CalcEntry)</td>
-            </tr>
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.CalcEntry</td>
+                            </tr>
                     }
-</tbody>
-
-
-
+                </tbody>
             </table>
         </div>
     </div>
-</div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function () {
+            var clearOnNextInput = false;
 
-@section Scripts {
-        <script>
-            $(document).ready(function () {
-                // Initialize calculator display
-                clearDisplay();
-            });
+            function calculate() {
+                var expression = $('#calcDisplay').val();
 
-            function appendToDisplay(value) {
-                var currentDisplay = $('#calcDisplay').val();
-                $('#calcDisplay').val(currentDisplay + value);
+                $.ajax({
+                    type: "POST",
+                    url: "/CalcHistr/Calculate",
+                    data: {
+                        expression: expression
+                    },
+                    success: function (data) {
+                        clearDisplay();
+                        if (data.result === "Not calculable") {
+                            $('#calcDisplay').val("Not calculable");
+                        } else {
+                            $('#calcDisplay').val(data.result);
+                            var newRow = '<tr><td>' + data.history[0].id + '</td><td>' + data.history[0].calcEntry + '</td></tr>';
+                            $('#historyTable').find('tbody').prepend(newRow);
+                        }
+                        clearOnNextInput = true;
+                    },
+                    error: function (error) {
+                        console.error("Error calculating:", error.responseJSON.error);
+                        alert("Error calculating: " + error.responseJSON.error);
+                    }
+                });
             }
 
             function clearDisplay() {
                 $('#calcDisplay').val('');
             }
 
-                        function calculate() {
-        var expression = $('#calcDisplay').val();
-
-        $.ajax({
-            type: "POST",
-            url: "/CalcHistr/Calculate",
-            data: {
-                expression: expression
-            },
-            success: function (data) {
-                // Clear the display and show the result or error message
-                clearDisplay();
-                if (data.result === "Not calculable") {
-                    $('#calcDisplay').val("Not calculable");
-                } else {
-                    $('#calcDisplay').val(data.result);
-
-                    // Update history table if calculation was successful
-                    var newRow = '<tr><td>' + data.history[0].id + '</td><td>' + data.history[0].calcEntry + '</td></tr>';
-                    $('#historyTable').find('tbody').prepend(newRow);
+            $('#calcDisplay').on('input', function () {
+                if (clearOnNextInput) {
+                    clearDisplay();
+                    clearOnNextInput = false;
                 }
-            },
-            error: function (error) {
-                console.error("Error calculating:", error.responseJSON.error);
-                alert("Error calculating: " + error.responseJSON.error);
-            }
+            });
+
+            $('#calculateButton').click(function () {
+                calculate();
+            });
+
+            $('.calc-button').click(function () {
+                var buttonValue = $(this).val();
+                $('#calcDisplay').val($('#calcDisplay').val() + buttonValue);
+            });
+
+            $('#clearButton').click(function () {
+                clearDisplay();
+            });
         });
-    }
-
-
-        </script>
-}
+    </script>
+</body>
+</html>

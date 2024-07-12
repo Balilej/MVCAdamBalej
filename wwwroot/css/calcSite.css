@@ -1,0 +1,56 @@
+﻿.container {
+    display: flex;
+}
+
+.calculator, .history {
+    padding: 20px;
+    margin: 20px;
+    border: 1px solid #ccc;
+}
+
+.calculator {
+    flex: 1;
+}
+
+.history {
+    flex: 1;
+}
+
+.calc-buttons {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+}
+
+.calc-button {
+    padding: 20px;
+    font-size: 18px;
+    cursor: pointer;
+    text-align: center;
+}
+
+    .calc-button.wide {
+        grid-column: span 4; /* Span the button across 4 columns */
+    }
+
+#calcDisplay {
+    width: 100%;
+    padding: 10px;
+    font-size: 18px;
+    margin-bottom: 20px;
+    box-sizing: border-box; /* Ensure padding is included in total width */
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+table, th, td {
+    border: 1px solid #ddd;
+}
+
+th, td {
+    padding: 8px;
+    text-align: left;
+}
