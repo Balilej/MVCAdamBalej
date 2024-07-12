@@ -87,7 +87,7 @@
                 $('#calcDisplay').val('');
             }
 
-                    function calculate() {
+                        function calculate() {
         var expression = $('#calcDisplay').val();
 
         $.ajax({
@@ -97,10 +97,17 @@
                 expression: expression
             },
             success: function (data) {
-                // Update display and history table
+                // Clear the display and show the result or error message
                 clearDisplay();
-                var newRow = '<tr><td>' + data.history.id + '</td><td>' + data.result + '</td></tr>';
-                $('#historyTable').find('tbody').prepend(newRow);
+                if (data.result === "Not calculable") {
+                    $('#calcDisplay').val("Not calculable");
+                } else {
+                    $('#calcDisplay').val(data.result);
+
+                    // Update history table if calculation was successful
+                    var newRow = '<tr><td>' + data.history[0].id + '</td><td>' + data.history[0].calcEntry + '</td></tr>';
+                    $('#historyTable').find('tbody').prepend(newRow);
+                }
             },
             error: function (error) {
                 console.error("Error calculating:", error.responseJSON.error);
@@ -108,6 +115,7 @@
             }
         });
     }
+
 
         </script>
 }

@@ -6,6 +6,7 @@ using MVCAdamBalej.Services;
 using System;
 using System.Data;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace MVCAdamBalej.Controllers
 {
@@ -29,6 +30,12 @@ namespace MVCAdamBalej.Controllers
         {
             try
             {
+                // Validate the expression
+                if (string.IsNullOrWhiteSpace(expression) || !IsValidExpression(expression))
+                {
+                    return Json(new { result = "Not calculable", history = _context.CalcDatas.OrderByDescending(c => c.Id).Take(10).ToList() });
+                }
+
                 var result = new DataTable().Compute(expression, null);
 
                 var calcEntry = $"{expression} = {result}";
@@ -44,7 +51,7 @@ namespace MVCAdamBalej.Controllers
                 // Fetch the newly added calcData from the database to get the actual Id
                 var newCalcData = _context.CalcDatas.OrderByDescending(c => c.Id).FirstOrDefault();
 
-                return Json(new { result = calcEntry, history = newCalcData });
+                return Json(new { result = calcEntry, history = _context.CalcDatas.OrderByDescending(c => c.Id).Take(10).ToList() });
             }
             catch (Exception ex)
             {
@@ -52,6 +59,16 @@ namespace MVCAdamBalej.Controllers
                 return Json(new { error = ex.Message });
             }
         }
+
+        private bool IsValidExpression(string expression)
+        {
+            // Simple regex to check if the expression is valid
+            // This regex only allows digits, operators, and spaces
+            var regex = new Regex(@"^[0-9\+\-\*/\s\(\)]+$");
+            return regex.IsMatch(expression);
+        }
+
+
 
 
 
