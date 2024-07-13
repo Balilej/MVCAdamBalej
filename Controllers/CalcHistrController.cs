@@ -60,9 +60,8 @@ namespace MVCAdamBalej.Controllers
             }
         }
 
-        private bool IsValidExpression(string expression)
+        private bool IsValidExpression(string expression) // Use regex to validate the expression
         {
-            // Updated regex to allow decimal points
             var regex = new Regex(@"^[0-9\+\-\*/\s\(\)\.]+$");
             return regex.IsMatch(expression);
         }
@@ -78,9 +77,8 @@ namespace MVCAdamBalej.Controllers
 
         private void SendError(Exception exception)
         {
-            // Log errors to file or other logging service
-            // For simplicity, you can implement logging logic here
-            // e.g., using System.IO for file logging
+            // Log errors to file 
+         
         }
     }
 }
